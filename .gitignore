@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Dataset & model artifacts (large files)
+data/
+uploads/
+nsfw_detector_model.keras
+nsfw_detector_model.h5
+*.h5
+*.keras
+
+# Generated plots
+training_history.png
+confusion_matrix.png
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Environment variables
+.env

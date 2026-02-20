@@ -1,284 +1,431 @@
-# NSFW Image Detection
+<div align="center">
 
-This project aims to create a machine learning model that detects NSFW (Not Safe For Work) images using TensorFlow and Flask. It includes data preprocessing, model training, evaluation, and deployment of a web API.
+<!-- Hero SVG Banner -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220" width="900" height="220">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0c29"/>
+      <stop offset="50%" style="stop-color:#302b63"/>
+      <stop offset="100%" style="stop-color:#24243e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f953c6"/>
+      <stop offset="100%" style="stop-color:#b91d73"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="900" height="220" fill="url(#bg)" rx="16"/>
+  <!-- Decorative circuit lines -->
+  <g stroke="#f953c6" stroke-width="0.8" opacity="0.18">
+    <line x1="0" y1="40" x2="900" y2="40"/>
+    <line x1="0" y1="180" x2="900" y2="180"/>
+    <circle cx="120" cy="40" r="4" fill="#f953c6"/>
+    <circle cx="780" cy="40" r="4" fill="#f953c6"/>
+    <circle cx="120" cy="180" r="4" fill="#f953c6"/>
+    <circle cx="780" cy="180" r="4" fill="#f953c6"/>
+    <line x1="120" y1="40" x2="120" y2="180"/>
+    <line x1="780" y1="40" x2="780" y2="180"/>
+  </g>
+  <!-- Shield icon -->
+  <g transform="translate(60, 65)" filter="url(#glow)">
+    <path d="M45 0 L90 18 L90 54 Q90 85 45 100 Q0 85 0 54 L0 18 Z"
+          fill="url(#accent)" opacity="0.9"/>
+    <path d="M45 22 L60 30 L60 50 Q60 64 45 72 Q30 64 30 50 L30 30 Z"
+          fill="white" opacity="0.9"/>
+    <text x="45" y="55" text-anchor="middle" font-size="22" font-weight="bold"
+          fill="#0f0c29" font-family="monospace">🛡</text>
+  </g>
+  <!-- Main title -->
+  <text x="185" y="100" font-family="'Courier New', monospace" font-size="38"
+        font-weight="bold" fill="white" filter="url(#glow)">NSFW Image</text>
+  <text x="185" y="148" font-family="'Courier New', monospace" font-size="38"
+        font-weight="bold" fill="url(#accent)" filter="url(#glow)">Detection</text>
+  <!-- Tagline -->
+  <text x="185" y="178" font-family="Arial, sans-serif" font-size="14"
+        fill="#aaaacc" letter-spacing="2">AI-powered · MobileNetV2 · Flask REST API</text>
+  <!-- Version pill -->
+  <rect x="680" y="85" width="160" height="32" rx="16" fill="url(#accent)" opacity="0.85"/>
+  <text x="760" y="106" text-anchor="middle" font-family="monospace" font-size="13"
+        fill="white" font-weight="bold">v2.0 · Python 3.x</text>
+</svg>
 
-## Table of Contents
+---
 
-- [Requirements](#requirements)
-- [Setup](#setup)
-- [Data Preparation](#data-preparation)
-- [Model Creation](#model-creation)
-- [Training the Model](#training-the-model)
-- [Evaluating the Model](#evaluating-the-model)
-- [Using the Transformers Pipeline](#using-the-transformers-pipeline)
-- [Creating a Flask App for Deployment](#creating-a-flask-app-for-deployment)
-- [Deploying the App](#deploying-the-app)
-- [Final Project Structure](#final-project-structure)
-- [Acknowledgments](#acknowledgments)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white&style=flat-square)](https://python.org)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12%2B-FF6F00?logo=tensorflow&logoColor=white&style=flat-square)](https://tensorflow.org)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C?logo=pytorch&logoColor=white&style=flat-square)](https://pytorch.org)
+[![HuggingFace](https://img.shields.io/badge/🤗%20HuggingFace-Transformers-FFD21E?style=flat-square)](https://huggingface.co)
+[![Flask](https://img.shields.io/badge/Flask-2.3%2B-000000?logo=flask&logoColor=white&style=flat-square)](https://flask.palletsprojects.com)
+[![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.0.0-8b5cf6?style=flat-square)]()
 
-## Requirements
+</div>
 
-Before you begin, ensure you have the following installed:
+---
 
-- **Python 3.x**: Download from [python.org](https://www.python.org/downloads/).
-- **pip**: Comes pre-installed with Python 3.x.
+## 📋 Table of Contents
 
-### Libraries
+- [Overview](#-overview)
+- [Architecture](#-architecture)
+- [Features](#-features)
+- [Project Structure](#-project-structure)
+- [Requirements](#-requirements)
+- [Setup & Installation](#-setup--installation)
+- [Data Preparation](#-data-preparation)
+- [Training the Model](#-training-the-model)
+- [Evaluating the Model](#-evaluating-the-model)
+- [Running the API](#-running-the-api)
+- [API Reference](#-api-reference)
+- [Deployment](#-deployment)
+- [Acknowledgments](#-acknowledgments)
 
-You will need the following Python libraries:
+---
 
-- TensorFlow
-- NumPy
-- Pandas
-- Matplotlib
-- Flask
-- Transformers
-- Torch
-- torchvision
+## 🔍 Overview
 
-You can install these libraries using pip. Open a command prompt and run:
+**NSFW Image Detection** is a dual-path machine learning system that classifies images as **NSFW** (Not Safe For Work) or **SFW** (Safe For Work).
 
-```bash
-pip install tensorflow numpy pandas matplotlib flask transformers torch torchvision
+| Path | Use Case | Model |
+|------|----------|-------|
+| **Transfer Learning** | Custom datasets, fine-tuning | MobileNetV2 + TensorFlow |
+| **Zero-Shot API** | Quick deployment, no training data needed | `Falconsai/nsfw_image_detection` via Hugging Face |
+
+Both paths are served through the same **Flask REST API**, so you can swap backends without changing your client code.
+
+---
+
+## 🏗 Architecture
+
+```
+                    ┌─────────────────────────────────────┐
+                    │           Flask REST API             │
+                    │           (app.py :5000)             │
+                    └────────────────┬────────────────────┘
+                                     │ POST /predict
+                         ┌───────────▼───────────┐
+                         │   Image Validation     │
+                         │   (type, size, format) │
+                         └───────────┬───────────┘
+                                     │
+                         ┌───────────▼───────────┐
+                         │  Hugging Face Model    │
+                         │  Falconsai/nsfw_image  │
+                         │  _detection (PyTorch)  │
+                         └───────────┬───────────┘
+                                     │
+                         ┌───────────▼───────────┐
+                         │  Softmax → id2label    │
+                         │  {"nsfw": 0.97, ...}   │
+                         └───────────┬───────────┘
+                                     │
+                         ┌───────────▼───────────┐
+                         │   JSON Response        │
+                         │   prediction + scores  │
+                         └───────────────────────┘
+
+  ── Custom Training Path ──────────────────────────────────────────
+  raw images → preprocessing.py → model.py (MobileNetV2) → train.py
+                                                        ↓
+                                              nsfw_detector_model.keras
+                                                        ↓
+                                                  evaluate.py
 ```
 
-## Setup
+---
 
-1. **Create a project directory:**
+## ✨ Features
 
-   Open a command prompt and run:
+- 🔒 **Secure file handling** — `werkzeug.secure_filename`, extension allow-list, 16 MB upload cap, automatic temp-file cleanup
+- 🏷 **Label-safe predictions** — uses `model.config.id2label` instead of hardcoded indices
+- 📉 **Smart training callbacks** — EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
+- 📊 **Rich evaluation** — classification report + confusion matrix PNG output
+- 🌡 **Health endpoint** — `GET /health` for load-balancer checks
+- 🐛 **Debug-mode gating** — `FLASK_DEBUG=1` env var (never enabled by default)
+- 📦 **Modern save format** — `.keras` (replaces deprecated `.h5`)
 
-   ```bash
-   mkdir nsfw_image_detector
-   cd nsfw_image_detector
-   ```
+---
 
-2. **Create subfolders and files:**
+## 📁 Project Structure
 
-   In the command prompt, run:
+```
+nsfw-image-detection/
+│
+├── 📄 app.py              # Flask REST API — /predict & /health endpoints
+├── 📄 model.py            # MobileNetV2 transfer-learning model factory
+├── 📄 preprocessing.py    # ImageDataGenerator setup for train/val/test
+├── 📄 train.py            # Training loop with callbacks + history plot
+├── 📄 evaluate.py         # Metrics, classification report, confusion matrix
+├── 📄 requirements.txt    # Pinned Python dependencies
+├── 📄 README.md           # You are here
+│
+├── 📂 data/               # (gitignored) Your image dataset
+│   ├── 📂 train/
+│   │   ├── 📂 nsfw/       # Training NSFW images
+│   │   └── 📂 sfw/        # Training SFW images
+│   ├── 📂 validation/
+│   │   ├── 📂 nsfw/
+│   │   └── 📂 sfw/
+│   └── 📂 test/
+│       ├── 📂 nsfw/
+│       └── 📂 sfw/
+│
+├── 📂 uploads/            # (auto-created, gitignored) Temp API uploads
+├── 🖼  training_history.png # Generated after training
+└── 🖼  confusion_matrix.png  # Generated after evaluation
+```
 
-   ```bash
-   mkdir data\train\data\train\nsfw data\train\sfw
-   mkdir data\validation\nsfw data\validation\sfw
-   mkdir data\test\nsfw data\test\sfw
-   type nul > preprocessing.py
-   type nul > model.py
-   type nul > train.py
-   type nul > evaluate.py
-   type nul > app.py
-   ```
+---
 
-## Data Preparation
+## 📦 Requirements
 
-### Organizing Your Data
+| Requirement | Version |
+|-------------|---------|
+| Python | 3.9+ |
+| TensorFlow | ≥ 2.12 |
+| PyTorch | ≥ 2.0 |
+| HuggingFace Transformers | ≥ 4.35 |
+| Flask | ≥ 2.3 |
+| Pillow | ≥ 9.5 |
+| scikit-learn | ≥ 1.2 |
 
-Organize your images into the following directory structure:
+---
+
+## 🚀 Setup & Installation
+
+### 1 — Clone the repository
+
+```bash
+git clone https://github.com/Kaelith69/NSFW-Image-Detection.git
+cd NSFW-Image-Detection
+```
+
+### 2 — Create and activate a virtual environment
+
+```bash
+# macOS / Linux
+python3 -m venv venv
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
+```
+
+### 3 — Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🗂 Data Preparation
+
+### Create the folder structure
+
+```bash
+# macOS / Linux / Windows (Git Bash)
+mkdir -p data/train/nsfw data/train/sfw \
+         data/validation/nsfw data/validation/sfw \
+         data/test/nsfw data/test/sfw
+```
+
+Place your images in the appropriate sub-folders:
 
 ```
 data/
 ├── train/
-│   ├── nsfw/  # Add NSFW images here
-│   └── sfw/   # Add SFW (Safe for Work) images here
+│   ├── nsfw/   ← NSFW training images
+│   └── sfw/    ← SFW training images
 ├── validation/
-│   ├── nsfw/  # Add NSFW validation images here
-│   └── sfw/   # Add SFW validation images here
+│   ├── nsfw/   ← NSFW validation images
+│   └── sfw/    ← SFW validation images
 └── test/
     ├── nsfw/
     └── sfw/
 ```
 
-### Preprocessing Script
+> **Tip:** Aim for a balanced dataset (roughly equal NSFW and SFW counts). A minimum of ~500 images per class is recommended.
 
-Create a preprocessing script `preprocessing.py` to handle image resizing, augmentation, and data generators.
+---
 
-```python
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+## 🏋 Training the Model
 
-train_dir = 'data/train'
-validation_dir = 'data/validation'
-
-train_datagen = ImageDataGenerator(
-    rescale=1.0/255,
-    rotation_range=40,
-    width_shift_range=0.2,
-    height_shift_range=0.2,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True,
-    fill_mode='nearest'
-)
-
-validation_datagen = ImageDataGenerator(rescale=1.0/255)
-
-train_generator = train_datagen.flow_from_directory(
-    train_dir,
-    target_size=(224, 224),
-    batch_size=32,
-    class_mode='binary'
-)
-
-validation_generator = validation_datagen.flow_from_directory(
-    validation_dir,
-    target_size=(224, 224),
-    batch_size=32,
-    class_mode='binary'
-)
-```
-
-## Model Creation
-
-Create a model script `model.py` to define the architecture using MobileNetV2 (optional) or use the Transformers library for NSFW detection.
-
-### Using the Transformers Library
-
-You can load the model using the Hugging Face `transformers` library.
-
-```python
-from transformers import AutoImageProcessor, AutoModelForImageClassification
-
-# Load model and processor
-processor = AutoImageProcessor.from_pretrained("Falconsai/nsfw_image_detection")
-model = AutoModelForImageClassification.from_pretrained("Falconsai/nsfw_image_detection")
-```
-
-## Training the Model
-
-If you decide to train your model using TensorFlow, create a training script `train.py` to train the model.
-
-```python
-from preprocessing import train_generator, validation_generator
-from model import create_model
-
-model = create_model()
-
-history = model.fit(
-    train_generator,
-    epochs=10,
-    validation_data=validation_generator
-)
-
-model.save('nsfw_detector_model.h5')
-```
-
-Run the training script in the command prompt:
+> 🎉 ![Training in progress](https://media.giphy.com/media/du3J3cXyzhj75IOgvA/giphy.gif)
 
 ```bash
 python train.py
 ```
 
-This will save the trained model as `nsfw_detector_model.h5`.
+What this does:
+1. Loads augmented data generators from `preprocessing.py`
+2. Builds the MobileNetV2 transfer-learning model from `model.py`
+3. Trains for up to **20 epochs** with EarlyStopping (patience = 4)
+4. Saves the best checkpoint as **`nsfw_detector_model.keras`**
+5. Saves a training history plot as **`training_history.png`**
 
-## Evaluating the Model
-
-Create an evaluation script `evaluate.py` to test the model on the validation dataset.
+**To fine-tune the base model** (after initial training converges), edit `train.py` and update `create_model()`:
 
 ```python
-from tensorflow.keras.models import load_model
-from preprocessing import validation_generator
-
-model = load_model('nsfw_detector_model.h5')
-
-loss, accuracy = model.evaluate(validation_generator)
-print(f"Validation Accuracy: {accuracy * 100:.2f}%")
+# Unfreeze layers above index 100 for fine-tuning
+model = create_model(learning_rate=1e-5, fine_tune_at=100)
 ```
 
-Run the evaluation script:
+---
+
+## 📊 Evaluating the Model
 
 ```bash
 python evaluate.py
 ```
 
-## Using the Transformers Pipeline
+Output:
+- Validation and test accuracy/loss printed to the console
+- Full classification report (precision, recall, F1)
+- Confusion matrix saved as **`confusion_matrix.png`**
 
-To utilize the Hugging Face pipeline for NSFW image classification:
+---
 
-```python
-from transformers import pipeline
-from PIL import Image
+## 🌐 Running the API
 
-# Load the image classification pipeline
-pipe = pipeline("image-classification", model="Falconsai/nsfw_image_detection")
-
-# Load the image you want to classify
-image_path = "path_to_your_image.jpg"  # Update with your image path
-image = Image.open(image_path)
-
-# Perform the classification
-results = pipe(image)
-
-# Print the results
-print(results)
-```
-
-## Creating a Flask App for Deployment
-
-Create a Flask app `app.py` to serve your model as an API.
-
-```python
-from flask import Flask, request, jsonify
-from transformers import AutoImageProcessor, AutoModelForImageClassification
-from PIL import Image
-import numpy as np
-
-processor = AutoImageProcessor.from_pretrained("Falconsai/nsfw_image_detection")
-model = AutoModelForImageClassification.from_pretrained("Falconsai/nsfw_image_detection")
-
-app = Flask(__name__)
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    img = request.files['image']
-    img_path = f'./uploads/{img.filename}'
-    img.save(img_path)
-
-    img = Image.open(img_path).convert("RGB")
-    inputs = processor(images=img, return_tensors="pt")
-    
-    outputs = model(**inputs)
-    logits = outputs.logits
-    predictions = logits.argmax(dim=1)
-
-    return jsonify({
-        'prediction': 'NSFW' if predictions.item() == 1 else 'SFW'
-    })
-
-if __name__ == '__main__':
-    app.run(debug=True)
-```
-
-Run the Flask app:
+### Start the server
 
 ```bash
 python app.py
 ```
 
-## Deploying the App
+The API starts on **http://localhost:5000**.
 
-### Deployment Options
+### Enable debug mode (development only)
 
-You can deploy your Flask app using platforms like:
-
-- **Heroku**: Follow the [Heroku deployment guide](https://devcenter.heroku.com/articles/getting-started-with-python).
-- **AWS EC2**: Follow the [AWS EC2 Flask deployment guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html).
-
-## Final Project Structure
-
-```
-nsfw_image_detector/
-├── data/
-│   ├── train/
-│   ├── validation/
-│   └── test/
-├── preprocessing.py  # Image preprocessing and data generators
-├── model.py          # Model architecture
-├── train.py          # Training script
-├── evaluate.py       # Model evaluation script
-└── app.py            # Flask API for model serving
+```bash
+FLASK_DEBUG=1 python app.py
 ```
 
-## Acknowledgments
+> ⚠️ **Never set `FLASK_DEBUG=1` in production.**
 
-- TensorFlow for providing the necessary libraries and tools.
-- The creators of MobileNetV2 for the pre-trained model architecture.
-- Hugging Face for the `transformers` library and the `Falconsai/nsfw_image_detection` model.
+---
+
+## 📡 API Reference
+
+### `GET /health`
+
+Liveness check for load balancers and monitoring.
+
+```bash
+curl http://localhost:5000/health
 ```
+
+```json
+{ "status": "ok" }
+```
+
+---
+
+### `POST /predict`
+
+Classify an image as NSFW or SFW.
+
+**Request**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `image` | file | Image file (jpg, jpeg, png, gif, bmp, webp) — max 16 MB |
+
+```bash
+curl -X POST http://localhost:5000/predict \
+     -F "image=@/path/to/your/photo.jpg"
+```
+
+**Success Response (200)**
+
+```json
+{
+  "prediction": "normal",
+  "confidence": 0.9831,
+  "scores": {
+    "normal": 0.9831,
+    "nsfw": 0.0169
+  }
+}
+```
+
+**Error Responses**
+
+| Status | Condition |
+|--------|-----------|
+| 400 | Missing `image` field or empty filename |
+| 415 | Unsupported file type |
+| 422 | File is not a valid image |
+
+---
+
+### Quick Python client example
+
+```python
+import requests
+
+with open("photo.jpg", "rb") as f:
+    response = requests.post(
+        "http://localhost:5000/predict",
+        files={"image": f},
+    )
+
+data = response.json()
+print(f"Prediction : {data['prediction']}")
+print(f"Confidence : {data['confidence'] * 100:.1f}%")
+print(f"All scores : {data['scores']}")
+```
+
+---
+
+## 🚢 Deployment
+
+### Docker (recommended)
+
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 5000
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5000", "app:app"]
+```
+
+```bash
+docker build -t nsfw-detector .
+docker run -p 5000:5000 nsfw-detector
+```
+
+### Heroku
+
+Follow the [Heroku Python deployment guide](https://devcenter.heroku.com/articles/getting-started-with-python).
+
+### AWS Elastic Beanstalk
+
+Follow the [AWS EB Flask guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html).
+
+---
+
+## 🙏 Acknowledgments
+
+- [TensorFlow](https://tensorflow.org) — training infrastructure and MobileNetV2 weights
+- [Hugging Face](https://huggingface.co) — Transformers library and the [`Falconsai/nsfw_image_detection`](https://huggingface.co/Falconsai/nsfw_image_detection) model
+- [MobileNetV2](https://arxiv.org/abs/1801.04381) (Sandler et al., 2018) — efficient CNN backbone
+- [Flask](https://flask.palletsprojects.com) — lightweight WSGI web framework
+
+---
+
+<div align="center">
+
+*Made with ☕ and questionable life choices.*
+
+**Why did the neural network break up with the dataset?**
+*Because it had too many issues and never validated its inputs.* 🥁
+
+</div>
